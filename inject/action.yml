@@ -7,6 +7,9 @@ inputs:
   cache-target:
     default: /root/.cache/go-build
     description: "Where the cache is stored in the docker container. Default: `/root/.cache/go-build`"
+  cache-opts:
+    default: ""
+    description: "Other mount options with leading `,`. ex. ,uid=1000,umask=0222,rw"
   scratch-dir:
     default: scratch
     description: "Where the action is stores some temporary files for its processing. Default: `scratch`"
@@ -27,7 +30,7 @@ runs:
         cat > ${{ inputs.scratch-dir }}/Dancefile.inject <<EOF
         FROM busybox:1
         COPY buildstamp buildstamp
-        RUN --mount=type=cache,target=${{ inputs.cache-target }} \
+        RUN --mount=type=cache,target=${{ inputs.cache-target }}${{ inputs.cache-opts }} \
             --mount=type=bind,source=.,target=/var/dance-cache \
             cp -R /var/dance-cache/. ${{ inputs.cache-target }} || true
         EOF
